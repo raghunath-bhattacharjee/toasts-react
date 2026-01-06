@@ -66,12 +66,30 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 ### 3️⃣ Show a Toast Anywhere
 
 ```jsx
-import { toast } from "toasts-react";
+import React from "react";
 
-toast.success("Profile updated successfully");
-toast.error("Something went wrong");
-toast.info("New update available");
-toast.warning("Password is weak");
+import { ToastProvider, useToast } from "toasts-react";
+
+const Button = () => {
+  const { success, error, info, warning } = useToast();
+
+  const buttonClick = () => {
+    success("Profile updated successfully");
+    error("Something went wrong");
+    info("New update available");
+    warning("Password is weak");
+  }
+
+  return <button onClick={() => buttonClick()}>Toast</button>;
+}
+
+export default function App() {
+  return (
+    <ToastProvider>
+      <Button />
+    </ToastProvider>
+  );
+}
 ```
 
 ---
