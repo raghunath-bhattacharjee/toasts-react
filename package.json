@@ -1,6 +1,6 @@
 {
   "name": "toasts-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Lightweight React toast notification library",
   "type": "module",
   "main": "dist/index.cjs.js",

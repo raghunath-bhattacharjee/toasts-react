@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+import ReactDOM from "react-dom";
 import Toast from "../components/Toast";
 import { injectToastStyles } from "../styles/injectStyles";
 
@@ -8,56 +15,80 @@ export const ToastProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);
 
     useEffect(() => {
-        injectToastStyles();
+        if (typeof window !== "undefined") injectToastStyles();
     }, []);
 
+    const safeUUID = () =>
+        typeof crypto !== "undefined" && crypto.randomUUID
+            ? crypto.randomUUID()
+            : String(Date.now() + Math.random());
+
     const show = (message, options = {}) => {
-        const id = crypto.randomUUID();
+        const id = options.id ?? safeUUID();
 
         const toast = {
             id,
             message,
             type: options.type ?? "default",
-            duration: options.duration ?? 3000
+            duration: options.duration ?? 3000,
+            dismissible: options.dismissible ?? true,
+            position: options.position ?? "top-right"
         };
 
         setToasts((prev) => [...prev, toast]);
 
         if (toast.duration !== Infinity) {
-            setTimeout(() => {
-                setToasts((prev) => prev.filter((t) => t.id !== id));
-            }, toast.duration);
+            setTimeout(() => dismiss(id), toast.duration);
         }
 
         return id;
     };
 
     const dismiss = (id) => {
+        if (!id) {
+            setToasts([]);
+            return;
+        }
+
         setToasts((prev) => prev.filter((t) => t.id !== id));
     };
 
+    const api = useMemo(() => ({ show, dismiss }), []);
+
     return (
-        <ToastContext.Provider value={{ show, dismiss }}>
+        <ToastContext.Provider value={api}>
             {children}
 
-            <div className="rtl-toast-container">
-                {toasts.map((t) => (
-                    <Toast
-                        key={t.id}
-                        message={t.message}
-                        type={t.type}
-                        onClose={() => dismiss(t.id)}
-                    />
-                ))}
-            </div>
+            {typeof document !== "undefined" &&
+                ReactDOM.createPortal(
+                    <>
+                        {["top-left", "top-right", "bottom-left", "bottom-right"].map(
+                            (pos) => (
+                                <div key={pos} className={`rtl-toast-container ${pos}`}>
+                                    {toasts
+                                        .filter((t) => t.position === pos)
+                                        .map((t) => (
+                                            <Toast
+                                                key={t.id}
+                                                message={t.message}
+                                                type={t.type}
+                                                dismissible={t.dismissible}
+                                                onClose={() => dismiss(t.id)}
+                                            />
+                                        ))}
+                                </div>
+                            )
+                        )}
+                    </>,
+                    document.body
+                )}
         </ToastContext.Provider>
     );
 };
 
 export const useToastContext = () => {
     const ctx = useContext(ToastContext);
-    if (!ctx) {
+    if (!ctx)
         throw new Error("useToast must be used inside ToastProvider");
-    }
     return ctx;
 };
