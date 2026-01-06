@@ -129,171 +129,6 @@ if (!document.getElementById("__toast_styles__")) {
 > ✅ Safe for Module Federation
 > ✅ Safe for Next.js / Vite / CRA
 
----
-
-## 🧠 Architecture Overview
-
-```
-toasts-react
-│
-├── ToastProvider
-│   ├── ToastContext
-│   ├── Style Injector (CSS-in-JS)
-│   └── ToastContainer
-│
-├── toast (imperative API)
-│
-├── ToastItem
-│   ├── Animation engine
-│   ├── Auto dismiss logic
-│   └── Event handlers
-│
-└── Core Store (in-memory)
-```
-
----
-
-### 🔹 Design Philosophy
-
-* **Imperative API** (`toast.success()`)
-* **Declarative rendering**
-* **No Redux / Zustand required**
-* **Zero external dependencies**
-
----
-
-## 🧩 Full API Reference
-
----
-
-### `toast.success(message, options?)`
-
-```js
-toast.success("Saved successfully");
-```
-
----
-
-### `toast.error(message, options?)`
-
-```js
-toast.error("Failed to save");
-```
-
----
-
-### `toast.info(message, options?)`
-
-```js
-toast.info("New version available");
-```
-
----
-
-### `toast.warning(message, options?)`
-
-```js
-toast.warning("Low disk space");
-```
-
----
-
-### `toast.custom(renderFn, options?)`
-
-```jsx
-toast.custom(() => (
-  <div>
-    <strong>Custom Toast</strong>
-    <p>Hello world</p>
-  </div>
-));
-```
-
----
-
-### Options Object
-
-```ts
-{
-  duration?: number;     // default: 3000
-  position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
-  dismissible?: boolean; // default: true
-  id?: string;           // for manual control
-}
-```
-
----
-
-### `toast.dismiss(id?)`
-
-```js
-toast.dismiss();      // dismiss all
-toast.dismiss("id"); // dismiss specific toast
-```
-
----
-
-## 📍 Toast Positions
-
-Supported positions:
-
-* `top-right` (default)
-* `top-left`
-* `bottom-right`
-* `bottom-left`
-
-```js
-toast.success("Hello", {
-  position: "bottom-left",
-});
-```
-
----
-
-## 🧪 Examples
-
----
-
-### ✅ Basic Example
-
-```jsx
-<button onClick={() => toast.success("Login successful")}>
-  Login
-</button>
-```
-
----
-
-### ⏱ Auto Dismiss Control
-
-```js
-toast.info("Uploading...", {
-  duration: 6000,
-});
-```
-
----
-
-### ❌ Disable Dismiss
-
-```js
-toast.error("Critical error", {
-  dismissible: false,
-});
-```
-
----
-
-### 🧬 Unique Toast ID
-
-```js
-toast.success("Saved", { id: "save-toast" });
-
-// later
-toast.dismiss("save-toast");
-```
-
----
 
 ## 🏗 Architecture (Deep Dive)
 
@@ -303,25 +138,12 @@ toast.dismiss("save-toast");
 * No external state manager
 * Minimal re-renders
 
-```ts
-let toasts = [];
-```
-
----
 
 ### 🔹 Rendering Strategy
 
 * Single `ToastContainer`
 * Uses React Portals
 * Isolated DOM layer
-
----
-
-### 🔹 Performance
-
-* O(1) insert
-* Batched removals
-* Zero layout thrashing
 
 ---
 
@@ -332,27 +154,6 @@ let toasts = [];
 * Mount `ToastProvider` once
 * Use semantic toast types (`success`, `error`)
 * Use IDs for long-running tasks
-
----
-
-### ❌ Avoid
-
-* Mounting provider multiple times
-* Using toasts for critical blocking UX
-* Overusing custom JSX toasts
-
----
-
-## 🔒 SSR Compatibility
-
-✔ Works with:
-
-* Next.js
-* Remix
-* Astro
-* Vite SSR
-
-> Styles are injected **only on client mount**.
 
 ---
 
