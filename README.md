@@ -178,7 +178,7 @@ if (!document.getElementById("__toast_styles__")) {
 ## 🧑‍💻 Contribution Guidelines
 
 ```bash
-git clone <repo>
+git clone https://github.com/raghunath-bhattacharjee/toasts-react.git
 npm install
 npm run build
 ```
